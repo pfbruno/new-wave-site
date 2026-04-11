@@ -35,8 +35,8 @@ const recentSimulados = [
 ];
 
 const achievements = [
-  { icon: Flame, label: "7 dias seguidos", color: "text-orange-400" },
-  { icon: Star, label: "100 questões", color: "text-yellow-400" },
+  { icon: Flame, label: "7 dias seguidos", color: "text-destructive" },
+  { icon: Star, label: "100 questões", color: "text-primary" },
   { icon: Trophy, label: "Top 10%", color: "text-accent" },
 ];
 
