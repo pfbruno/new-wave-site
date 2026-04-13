@@ -10,6 +10,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Onboarding from "./pages/Onboarding";
 import AppLayout from "./components/layout/AppLayout";
 import Dashboard from "./pages/app/Dashboard";
+import TeacherDashboard from "./pages/app/TeacherDashboard";
+import Analytics from "./pages/app/Analytics";
 import PlaceholderPage from "./pages/app/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 
@@ -35,7 +37,8 @@ const App = () => (
             <Route path="questoes" element={<PlaceholderPage />} />
             <Route path="chat" element={<PlaceholderPage />} />
             <Route path="estudo" element={<PlaceholderPage />} />
-            <Route path="analytics" element={<PlaceholderPage />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="professor" element={<TeacherDashboard />} />
             <Route path="comunidade" element={<PlaceholderPage />} />
             <Route path="grupos" element={<PlaceholderPage />} />
             <Route path="aulas" element={<PlaceholderPage />} />
