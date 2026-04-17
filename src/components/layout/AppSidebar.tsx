@@ -13,6 +13,8 @@ import {
   LogOut,
   CreditCard,
   Share2,
+  Target,
+  Medal,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -44,8 +46,13 @@ const socialItems = [
   { title: "Comunidade", url: "/app/comunidade", icon: Users },
   { title: "Grupos", url: "/app/grupos", icon: Users },
   { title: "Aulas ao Vivo", url: "/app/aulas", icon: Video },
-  { title: "Conquistas", url: "/app/conquistas", icon: Trophy },
   { title: "Conteúdos", url: "/app/conteudos", icon: Bookmark },
+];
+
+const gameItems = [
+  { title: "Conquistas", url: "/app/conquistas", icon: Trophy },
+  { title: "Ranking", url: "/app/ranking", icon: Medal },
+  { title: "Desafios", url: "/app/desafios", icon: Target },
 ];
 
 const bottomItems = [
@@ -99,6 +106,24 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {socialItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <NavLink to={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Gamificação</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {gameItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <NavLink to={item.url}>

@@ -22,6 +22,9 @@ import StudyArea from "./pages/app/StudyArea";
 import Community from "./pages/app/Community";
 import StudyGroups from "./pages/app/StudyGroups";
 import LiveClasses from "./pages/app/LiveClasses";
+import Achievements from "./pages/app/Achievements";
+import Ranking from "./pages/app/Ranking";
+import Challenges from "./pages/app/Challenges";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,7 +57,9 @@ const App = () => (
             <Route path="comunidade" element={<Community />} />
             <Route path="grupos" element={<StudyGroups />} />
             <Route path="aulas" element={<LiveClasses />} />
-            <Route path="conquistas" element={<PlaceholderPage />} />
+            <Route path="conquistas" element={<Achievements />} />
+            <Route path="ranking" element={<Ranking />} />
+            <Route path="desafios" element={<Challenges />} />
             <Route path="conteudos" element={<PlaceholderPage />} />
             <Route path="planos" element={<PlaceholderPage />} />
             <Route path="indicacao" element={<PlaceholderPage />} />
