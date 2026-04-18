@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   BookOpen,
+  Library,
   Brain,
   MessageSquare,
   BarChart3,
@@ -34,6 +35,7 @@ import {
 
 const mainItems = [
   { title: "Dashboard", url: "/app", icon: LayoutDashboard },
+  { title: "Provas", url: "/app/provas", icon: Library },
   { title: "Simulados", url: "/app/simulados", icon: BookOpen },
   { title: "Questões", url: "/app/questoes", icon: FileText },
   { title: "Chat IA", url: "/app/chat", icon: MessageSquare },
