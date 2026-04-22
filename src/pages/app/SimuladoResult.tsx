@@ -4,8 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Star, Clock, CheckCircle2, XCircle, ArrowLeft, ChevronDown, ChevronUp, MessageSquare, AlertTriangle, Lightbulb, Target, Eye } from "lucide-react";
+import { Star, Clock, CheckCircle2, XCircle, ArrowLeft, ChevronDown, ChevronUp, MessageSquare, AlertTriangle, Lightbulb, Target, Eye, Zap, Trophy, Flame, TrendingUp } from "lucide-react";
 import { mockSimulados, type TeacherComment } from "@/data/mockSimulados";
+import { currentUser } from "@/data/mockGamification";
+import { cn } from "@/lib/utils";
 
 const commentTypeConfig: Record<string, { icon: typeof Lightbulb; label: string; color: string }> = {
   explanation: { icon: Lightbulb, label: "Explicação", color: "text-primary" },
