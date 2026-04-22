@@ -4,8 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Clock, ChevronLeft, ChevronRight, Flag, AlertTriangle } from "lucide-react";
+import { Clock, ChevronLeft, ChevronRight, Flag, AlertTriangle, Zap } from "lucide-react";
 import { mockSimulados } from "@/data/mockSimulados";
+import { StudyRewardPanel } from "@/components/gamification";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -74,8 +75,13 @@ const SimuladoResolver = () => {
     });
   };
 
+  const potentialXp = sim.questions.length * 5;
+
   return (
     <div className="max-w-4xl mx-auto space-y-4">
+      {/* Gamification panel */}
+      <StudyRewardPanel potentialXp={potentialXp} />
+
       {/* Header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
