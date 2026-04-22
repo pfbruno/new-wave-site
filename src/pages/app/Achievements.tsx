@@ -1,239 +1,63 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
+import { useState, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Trophy, Sparkles, Star, Lock } from "lucide-react";
 import {
-  Trophy,
-  Flame,
-  Star,
-  Target,
-  Brain,
-  BookOpen,
-  Zap,
-  Award,
-  Crown,
-  Medal,
-  TrendingUp,
-  Clock,
-  Sparkles,
-  Lock,
-} from "lucide-react";
+  AchievementBadgeCard,
+  AchievementCollectionProgress,
+  LevelProgressCard,
+  StreakCard,
+} from "@/components/gamification";
+import {
+  achievements,
+  categoryLabels,
+  type BadgeCategory,
+  rarityConfig,
+} from "@/data/mockGamification";
+import { cn } from "@/lib/utils";
 
-type BadgeRarity = "comum" | "raro" | "épico" | "lendário";
+type FilterCategory = "todas" | BadgeCategory;
 
-interface AchievementBadge {
-  id: string;
-  title: string;
-  description: string;
-  icon: typeof Trophy;
-  rarity: BadgeRarity;
-  unlocked: boolean;
-  progress: number;
-  total: number;
-  xpReward: number;
-  unlockedAt?: string;
-  category: "estudo" | "social" | "desempenho" | "consistência";
-}
-
-const userStats = {
-  level: 12,
-  xp: 2340,
-  xpNext: 3000,
-  totalXp: 24340,
-  rank: "Estudioso Avançado",
-  badgesUnlocked: 18,
-  badgesTotal: 42,
-  streak: 7,
-  longestStreak: 23,
-};
-
-const badges: AchievementBadge[] = [
-  {
-    id: "1",
-    title: "Primeiro Passo",
-    description: "Complete seu primeiro simulado",
-    icon: BookOpen,
-    rarity: "comum",
-    unlocked: true,
-    progress: 1,
-    total: 1,
-    xpReward: 50,
-    unlockedAt: "Há 2 meses",
-    category: "estudo",
-  },
-  {
-    id: "2",
-    title: "Maratonista",
-    description: "Estude por 7 dias consecutivos",
-    icon: Flame,
-    rarity: "raro",
-    unlocked: true,
-    progress: 7,
-    total: 7,
-    xpReward: 200,
-    unlockedAt: "Hoje",
-    category: "consistência",
-  },
-  {
-    id: "3",
-    title: "Centurião",
-    description: "Resolva 100 questões",
-    icon: Target,
-    rarity: "raro",
-    unlocked: true,
-    progress: 100,
-    total: 100,
-    xpReward: 150,
-    unlockedAt: "Há 1 mês",
-    category: "estudo",
-  },
-  {
-    id: "4",
-    title: "Mestre do Conhecimento",
-    description: "Alcance 90% de acerto em 10 simulados",
-    icon: Crown,
-    rarity: "lendário",
-    unlocked: false,
-    progress: 4,
-    total: 10,
-    xpReward: 1000,
-    category: "desempenho",
-  },
-  {
-    id: "5",
-    title: "Top 10",
-    description: "Esteja entre os 10 melhores da semana",
-    icon: Trophy,
-    rarity: "épico",
-    unlocked: true,
-    progress: 1,
-    total: 1,
-    xpReward: 500,
-    unlockedAt: "Há 3 dias",
-    category: "desempenho",
-  },
-  {
-    id: "6",
-    title: "Mente Brilhante",
-    description: "Use o Chat IA 50 vezes",
-    icon: Brain,
-    rarity: "raro",
-    unlocked: false,
-    progress: 32,
-    total: 50,
-    xpReward: 200,
-    category: "estudo",
-  },
-  {
-    id: "7",
-    title: "Velocista",
-    description: "Complete um simulado em menos de 30 minutos",
-    icon: Zap,
-    rarity: "épico",
-    unlocked: false,
-    progress: 0,
-    total: 1,
-    xpReward: 400,
-    category: "desempenho",
-  },
-  {
-    id: "8",
-    title: "Influenciador",
-    description: "Receba 100 curtidas em posts da comunidade",
-    icon: Star,
-    rarity: "épico",
-    unlocked: false,
-    progress: 47,
-    total: 100,
-    xpReward: 350,
-    category: "social",
-  },
-  {
-    id: "9",
-    title: "Imparável",
-    description: "Mantenha sequência de 30 dias",
-    icon: Flame,
-    rarity: "lendário",
-    unlocked: false,
-    progress: 7,
-    total: 30,
-    xpReward: 1500,
-    category: "consistência",
-  },
-  {
-    id: "10",
-    title: "Sábio",
-    description: "Alcance o nível 20",
-    icon: Award,
-    rarity: "lendário",
-    unlocked: false,
-    progress: 12,
-    total: 20,
-    xpReward: 2000,
-    category: "desempenho",
-  },
-  {
-    id: "11",
-    title: "Colaborador",
-    description: "Participe de 5 grupos de estudo",
-    icon: Medal,
-    rarity: "raro",
-    unlocked: true,
-    progress: 5,
-    total: 5,
-    xpReward: 250,
-    unlockedAt: "Há 1 semana",
-    category: "social",
-  },
-  {
-    id: "12",
-    title: "Madrugador",
-    description: "Estude antes das 7h por 5 dias",
-    icon: Clock,
-    rarity: "comum",
-    unlocked: false,
-    progress: 2,
-    total: 5,
-    xpReward: 100,
-    category: "consistência",
-  },
+const filterTabs: { value: FilterCategory; label: string }[] = [
+  { value: "todas", label: "Todas" },
+  { value: "consistencia", label: "Consistência" },
+  { value: "estudo", label: "Estudo" },
+  { value: "desempenho", label: "Desempenho" },
+  { value: "dominio", label: "Por matéria" },
+  { value: "revisao", label: "Revisão" },
+  { value: "especial", label: "Especiais" },
 ];
 
-const rarityStyles: Record<BadgeRarity, { bg: string; border: string; text: string; label: string }> = {
-  comum: {
-    bg: "bg-muted/50",
-    border: "border-muted-foreground/30",
-    text: "text-muted-foreground",
-    label: "Comum",
-  },
-  raro: {
-    bg: "bg-primary/10",
-    border: "border-primary/40",
-    text: "text-primary",
-    label: "Raro",
-  },
-  épico: {
-    bg: "bg-accent/10",
-    border: "border-accent/40",
-    text: "text-accent",
-    label: "Épico",
-  },
-  lendário: {
-    bg: "bg-gradient-to-br from-primary/20 to-accent/20",
-    border: "border-accent/60",
-    text: "text-accent",
-    label: "Lendário",
-  },
-};
-
 const Achievements = () => {
-  const [filter, setFilter] = useState<"todas" | "estudo" | "social" | "desempenho" | "consistência">("todas");
+  const [filter, setFilter] = useState<FilterCategory>("todas");
 
-  const filteredBadges = filter === "todas" ? badges : badges.filter((b) => b.category === filter);
-  const unlockedBadges = filteredBadges.filter((b) => b.unlocked);
-  const lockedBadges = filteredBadges.filter((b) => !b.unlocked);
+  const filtered = useMemo(
+    () => (filter === "todas" ? achievements : achievements.filter((b) => b.category === filter)),
+    [filter],
+  );
+
+  const unlocked = filtered.filter((b) => b.unlocked);
+  const inProgress = filtered.filter((b) => !b.unlocked && b.progress / b.total >= 0.5);
+  const locked = filtered.filter((b) => !b.unlocked && b.progress / b.total < 0.5);
+
+  // Quase lá - próximos do desbloqueio (independente do filtro)
+  const nearComplete = useMemo(
+    () =>
+      achievements
+        .filter((b) => !b.unlocked && b.progress / b.total >= 0.6)
+        .sort((a, b) => b.progress / b.total - a.progress / a.total)
+        .slice(0, 4),
+    [],
+  );
+
+  // Mais raros (lendários e épicos bloqueados)
+  const rare = useMemo(
+    () =>
+      achievements
+        .filter((b) => !b.unlocked && (b.rarity === "lendario" || b.rarity === "epico"))
+        .slice(0, 4),
+    [],
+  );
 
   return (
     <div className="space-y-6 max-w-7xl">
@@ -243,164 +67,134 @@ const Achievements = () => {
           <Trophy className="w-7 h-7 text-accent" />
           Conquistas
         </h1>
-        <p className="text-muted-foreground mt-1">Desbloqueie badges e suba de nível enquanto estuda</p>
+        <p className="text-muted-foreground mt-1 text-sm md:text-base">
+          Marque sua jornada rumo ao ENEM com badges por consistência, domínio e desempenho.
+        </p>
       </div>
 
-      {/* Player Card */}
-      <Card className="bg-gradient-to-br from-primary/10 via-card to-accent/10 border-primary/30 overflow-hidden">
-        <CardContent className="p-6">
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-3xl font-bold text-primary-foreground">
-                  {userStats.level}
-                </div>
-                <div className="absolute -bottom-1 -right-1 bg-accent rounded-full p-1.5">
-                  <Sparkles className="w-3 h-3 text-accent-foreground" />
-                </div>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wide">Nível</p>
-                <p className="font-heading text-2xl font-bold">{userStats.level}</p>
-                <p className="text-sm text-primary font-medium">{userStats.rank}</p>
-              </div>
-            </div>
+      {/* Player + coleção */}
+      <div className="grid lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2">
+          <LevelProgressCard />
+        </div>
+        <StreakCard />
+      </div>
 
-            <div className="space-y-3">
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-muted-foreground">Progresso</span>
-                  <span className="font-medium">{userStats.xp}/{userStats.xpNext} XP</span>
-                </div>
-                <Progress value={(userStats.xp / userStats.xpNext) * 100} className="h-2" />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {userStats.xpNext - userStats.xp} XP para o próximo nível
-                </p>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <TrendingUp className="w-3 h-3" />
-                <span>Total: {userStats.totalXp.toLocaleString()} XP</span>
-              </div>
-            </div>
+      <AchievementCollectionProgress />
 
-            <div className="grid grid-cols-3 gap-2">
-              <div className="text-center p-3 rounded-lg bg-card/50 border border-border">
-                <Trophy className="w-5 h-5 text-accent mx-auto mb-1" />
-                <p className="text-lg font-bold">{userStats.badgesUnlocked}</p>
-                <p className="text-xs text-muted-foreground">de {userStats.badgesTotal}</p>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-card/50 border border-border">
-                <Flame className="w-5 h-5 text-destructive mx-auto mb-1" />
-                <p className="text-lg font-bold">{userStats.streak}</p>
-                <p className="text-xs text-muted-foreground">sequência</p>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-card/50 border border-border">
-                <Star className="w-5 h-5 text-primary mx-auto mb-1" />
-                <p className="text-lg font-bold">{userStats.longestStreak}</p>
-                <p className="text-xs text-muted-foreground">recorde</p>
-              </div>
-            </div>
+      {/* Quase lá */}
+      {nearComplete.length > 0 && (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="font-heading text-lg font-bold flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-accent" />
+              Quase lá
+            </h2>
+            <span className="text-xs text-muted-foreground">
+              {nearComplete.length} conquistas perto de desbloquear
+            </span>
           </div>
-        </CardContent>
-      </Card>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {nearComplete.map((b) => (
+              <AchievementBadgeCard key={b.id} badge={b} />
+            ))}
+          </div>
+        </section>
+      )}
 
-      {/* Filters */}
-      <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
-        <TabsList className="grid grid-cols-5 w-full md:w-auto">
-          <TabsTrigger value="todas">Todas</TabsTrigger>
-          <TabsTrigger value="estudo">Estudo</TabsTrigger>
-          <TabsTrigger value="desempenho">Desempenho</TabsTrigger>
-          <TabsTrigger value="consistência">Consistência</TabsTrigger>
-          <TabsTrigger value="social">Social</TabsTrigger>
-        </TabsList>
+      {/* Mais raros */}
+      {rare.length > 0 && (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="font-heading text-lg font-bold flex items-center gap-2">
+              <Star className="w-5 h-5 text-accent" />
+              Mais raros
+            </h2>
+            <span className="text-xs text-muted-foreground">Conquistas lendárias e épicas</span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {rare.map((b) => (
+              <AchievementBadgeCard key={b.id} badge={b} />
+            ))}
+          </div>
+        </section>
+      )}
 
-        <TabsContent value={filter} className="space-y-6 mt-6">
-          {/* Unlocked */}
-          {unlockedBadges.length > 0 && (
-            <div>
-              <h2 className="font-heading text-lg font-semibold mb-3 flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-accent" />
-                Desbloqueadas ({unlockedBadges.length})
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {unlockedBadges.map((badge) => {
-                  const style = rarityStyles[badge.rarity];
-                  return (
-                    <Card
-                      key={badge.id}
-                      className={`${style.bg} ${style.border} border-2 hover:scale-105 transition-transform cursor-pointer`}
-                    >
-                      <CardContent className="p-4 text-center space-y-2">
-                        <div className={`w-14 h-14 mx-auto rounded-full ${style.bg} border-2 ${style.border} flex items-center justify-center`}>
-                          <badge.icon className={`w-7 h-7 ${style.text}`} />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-sm">{badge.title}</p>
-                          <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{badge.description}</p>
-                        </div>
-                        <div className="flex items-center justify-center gap-2 pt-1">
-                          <Badge variant="outline" className={`text-xs ${style.text} ${style.border}`}>
-                            {style.label}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">+{badge.xpReward} XP</span>
-                        </div>
-                        {badge.unlockedAt && (
-                          <p className="text-xs text-muted-foreground">{badge.unlockedAt}</p>
-                        )}
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+      {/* Filtros + listas */}
+      <section className="space-y-4">
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterCategory)}>
+          <div className="overflow-x-auto -mx-1 px-1">
+            <TabsList className="inline-flex w-max">
+              {filterTabs.map((t) => (
+                <TabsTrigger key={t.value} value={t.value} className="text-xs px-3">
+                  {t.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+
+          <TabsContent value={filter} className="space-y-6 mt-5">
+            {/* Desbloqueadas */}
+            {unlocked.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-heading text-base font-semibold flex items-center gap-2">
+                  <Trophy className="w-4 h-4 text-accent" />
+                  Desbloqueadas
+                  <span className="text-xs text-muted-foreground font-normal">({unlocked.length})</span>
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {unlocked.map((b) => (
+                    <AchievementBadgeCard key={b.id} badge={b} />
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Locked */}
-          {lockedBadges.length > 0 && (
-            <div>
-              <h2 className="font-heading text-lg font-semibold mb-3 flex items-center gap-2">
-                <Lock className="w-4 h-4 text-muted-foreground" />
-                Em progresso ({lockedBadges.length})
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {lockedBadges.map((badge) => {
-                  const style = rarityStyles[badge.rarity];
-                  const progressPct = (badge.progress / badge.total) * 100;
-                  return (
-                    <Card
-                      key={badge.id}
-                      className="bg-card/50 border-border border-2 opacity-80 hover:opacity-100 transition-opacity"
-                    >
-                      <CardContent className="p-4 text-center space-y-2">
-                        <div className="w-14 h-14 mx-auto rounded-full bg-muted/30 border-2 border-muted flex items-center justify-center relative">
-                          <badge.icon className="w-7 h-7 text-muted-foreground/60" />
-                          <Lock className="w-3 h-3 text-muted-foreground absolute bottom-0 right-0 bg-card rounded-full p-0.5" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-sm">{badge.title}</p>
-                          <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{badge.description}</p>
-                        </div>
-                        <div className="space-y-1.5">
-                          <Progress value={progressPct} className="h-1.5" />
-                          <p className="text-xs text-muted-foreground">
-                            {badge.progress}/{badge.total}
-                          </p>
-                        </div>
-                        <div className="flex items-center justify-center gap-2 pt-1">
-                          <Badge variant="outline" className={`text-xs ${style.text} ${style.border}`}>
-                            {style.label}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">+{badge.xpReward} XP</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+            {/* Em progresso */}
+            {inProgress.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-heading text-base font-semibold flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  Em progresso
+                  <span className="text-xs text-muted-foreground font-normal">({inProgress.length})</span>
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {inProgress.map((b) => (
+                    <AchievementBadgeCard key={b.id} badge={b} />
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+            )}
+
+            {/* Bloqueadas */}
+            {locked.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-heading text-base font-semibold flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-muted-foreground" />
+                  A descobrir
+                  <span className="text-xs text-muted-foreground font-normal">({locked.length})</span>
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {locked.map((b) => (
+                    <AchievementBadgeCard key={b.id} badge={b} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Empty state */}
+            {filtered.length === 0 && (
+              <Card className="bg-card border-dashed border-border">
+                <CardContent className="p-10 text-center space-y-2">
+                  <Trophy className="w-10 h-10 text-muted-foreground/40 mx-auto" />
+                  <p className="font-medium">Nada nessa categoria ainda</p>
+                  <p className="text-sm text-muted-foreground">Continue estudando para desbloquear novas conquistas.</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      </section>
     </div>
   );
 };

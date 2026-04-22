@@ -4,8 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Star, Clock, CheckCircle2, XCircle, ArrowLeft, ChevronDown, ChevronUp, MessageSquare, AlertTriangle, Lightbulb, Target, Eye } from "lucide-react";
+import { Star, Clock, CheckCircle2, XCircle, ArrowLeft, ChevronDown, ChevronUp, MessageSquare, AlertTriangle, Lightbulb, Target, Eye, Zap, Trophy, Flame, TrendingUp } from "lucide-react";
 import { mockSimulados, type TeacherComment } from "@/data/mockSimulados";
+import { currentUser } from "@/data/mockGamification";
+import { cn } from "@/lib/utils";
 
 const commentTypeConfig: Record<string, { icon: typeof Lightbulb; label: string; color: string }> = {
   explanation: { icon: Lightbulb, label: "Explicação", color: "text-primary" },
@@ -57,6 +59,73 @@ const SimuladoResult = () => {
           </div>
         </div>
       </Card>
+
+      {/* Reward panel - gamification */}
+      {(() => {
+        const baseXp = correct * 10;
+        const bonusXp = percentage >= 70 ? 80 : percentage >= 50 ? 30 : 0;
+        const totalXpEarned = baseXp + bonusXp;
+        const newStreak = currentUser.streak + 1;
+        const levelPct = Math.round(((currentUser.xp + totalXpEarned) / currentUser.xpToNextLevel) * 100);
+
+        return (
+          <Card className="relative overflow-hidden border-accent/30 bg-gradient-to-br from-accent/10 via-card to-primary/10">
+            <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-accent/15 blur-3xl pointer-events-none" />
+            <CardContent className="relative p-5 space-y-4">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-accent font-semibold">
+                <Trophy className="h-4 w-4" />
+                Recompensas conquistadas
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="rounded-xl bg-card/60 border border-border p-3 space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Zap className="h-3.5 w-3.5 text-accent" /> XP ganho
+                  </div>
+                  <p className="font-heading text-2xl font-bold text-accent tabular-nums">+{totalXpEarned}</p>
+                  <p className="text-[10px] text-muted-foreground">Base {baseXp} + bônus {bonusXp}</p>
+                </div>
+                <div className="rounded-xl bg-card/60 border border-border p-3 space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Flame className="h-3.5 w-3.5 text-destructive" /> Sequência
+                  </div>
+                  <p className="font-heading text-2xl font-bold text-destructive tabular-nums">{newStreak} dias</p>
+                  <p className="text-[10px] text-muted-foreground">+1 dia mantido</p>
+                </div>
+                <div className="rounded-xl bg-card/60 border border-border p-3 space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <TrendingUp className="h-3.5 w-3.5 text-primary" /> Nível {currentUser.level}
+                  </div>
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-secondary/60">
+                    <div
+                      className="h-full bg-gradient-to-r from-primary to-accent transition-all"
+                      style={{ width: `${Math.min(100, levelPct)}%` }}
+                    />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground tabular-nums">{levelPct}% para nível {currentUser.level + 1}</p>
+                </div>
+                <div className="rounded-xl bg-card/60 border border-border p-3 space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Target className="h-3.5 w-3.5 text-primary" /> Desafios afetados
+                  </div>
+                  <p className="font-heading text-2xl font-bold text-primary tabular-nums">2</p>
+                  <p className="text-[10px] text-muted-foreground">Maratona +12 questões</p>
+                </div>
+              </div>
+
+              {percentage >= 70 && (
+                <div className="rounded-xl bg-accent/10 border border-accent/30 p-3 flex items-center gap-3">
+                  <Trophy className="h-5 w-5 text-accent shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold">Badge desbloqueada: Acerto cirúrgico</p>
+                    <p className="text-xs text-muted-foreground">+200 XP por atingir 80% em um simulado</p>
+                  </div>
+                  <span className="text-xs font-semibold text-accent">+200 XP</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* Rating */}
       <Card className="border-border/50">
