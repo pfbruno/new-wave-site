@@ -25,6 +25,7 @@ import LiveClasses from "./pages/app/LiveClasses";
 import Achievements from "./pages/app/Achievements";
 import Ranking from "./pages/app/Ranking";
 import Challenges from "./pages/app/Challenges";
+import Paywall from "./pages/app/Paywall";
 import ExamsCatalog from "./pages/app/exams/ExamsCatalog";
 import InstitutionHub from "./pages/app/exams/InstitutionHub";
 import ExamDetail from "./pages/app/exams/ExamDetail";
@@ -70,6 +71,7 @@ const App = () => (
             <Route path="conquistas" element={<Achievements />} />
             <Route path="ranking" element={<Ranking />} />
             <Route path="desafios" element={<Challenges />} />
+            <Route path="upgrade" element={<Paywall />} />
             <Route path="conteudos" element={<PlaceholderPage />} />
             <Route path="planos" element={<PlaceholderPage />} />
             <Route path="indicacao" element={<PlaceholderPage />} />
